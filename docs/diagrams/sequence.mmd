@@ -1,0 +1,36 @@
+sequenceDiagram
+    actor Owner as Cabin Owner
+    participant App as Mobile App
+    participant Server as Backend Server
+    participant DB as Database
+    participant Notif as Notification Service
+    participant GW as Cabin Gateway
+    participant TS as Temperature Sensor
+    participant PM as Power Meter
+    participant SS as Security Sensor
+
+    Note over GW,SS: Periodic monitoring cycle
+    loop Every measurement interval
+        GW->>TS: Read temperature
+        TS-->>GW: Temperature (°C)
+        GW->>PM: Read energy consumption
+        PM-->>GW: Consumption (kWh)
+        GW->>SS: Read security status
+        SS-->>GW: Door / motion status
+        GW->>Server: Send sensor data
+        Server->>DB: Store readings
+        DB-->>Server: Ack
+        alt Reading outside safe threshold
+            Server->>Notif: Create alert
+            Notif->>App: Push notification
+            App-->>Owner: Show alert
+        end
+    end
+
+    Note over Owner,Server: Owner checks status manually
+    Owner->>App: Open app / request status
+    App->>Server: Get latest status
+    Server->>DB: Query latest readings
+    DB-->>Server: Readings
+    Server-->>App: Status data
+    App-->>Owner: Display temperature, energy, security

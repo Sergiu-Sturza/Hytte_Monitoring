@@ -1,0 +1,82 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam dpi 200
+skinparam defaultFontName Helvetica
+skinparam defaultFontSize 13
+skinparam ArrowColor #333333
+skinparam class {
+  BackgroundColor #ECE9FB
+  BorderColor #7C6BC4
+}
+hide circle
+
+class User {
+  -userId: int
+  -name: String
+  -email: String
+  +login(): boolean
+  +viewStatus(): Status
+}
+class Cabin {
+  -cabinId: int
+  -name: String
+  -location: String
+}
+class Gateway {
+  -gatewayId: int
+  -firmwareVersion: String
+  +collectData(): void
+  +sendData(): void
+}
+abstract class Sensor {
+  -sensorId: int
+  -location: String
+  -active: boolean
+  +read(): Reading
+}
+class TemperatureSensor {
+  -unit: String = "C"
+  +read(): Reading
+}
+class PowerMeter {
+  -unit: String = "kWh"
+  +read(): Reading
+}
+class SecuritySensor {
+  -kind: String
+  +read(): Reading
+}
+class Reading {
+  -timestamp: DateTime
+  -value: double
+  -unit: String
+}
+class Threshold {
+  -sensorType: String
+  -minValue: double
+  -maxValue: double
+  +isBreached(r: Reading): boolean
+}
+class Alert {
+  -alertId: int
+  -timestamp: DateTime
+  -severity: String
+  -message: String
+}
+class NotificationService {
+  +send(a: Alert, u: User): void
+}
+
+User "1" --> "1..*" Cabin : owns
+Cabin "1" *--> "1" Gateway : contains
+Gateway "1" o--> "*" Sensor : manages
+Sensor <|-- TemperatureSensor
+Sensor <|-- PowerMeter
+Sensor <|-- SecuritySensor
+Sensor "1" --> "*" Reading : produces
+Threshold ..> Reading : evaluates
+Threshold --> Alert : raises
+Alert "*" --> "1" User : notifies
+NotificationService ..> Alert : sends
+@enduml

@@ -1,0 +1,41 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam dpi 200
+skinparam defaultFontName Helvetica
+skinparam defaultFontSize 14
+skinparam ArrowColor #333333
+skinparam state {
+  BackgroundColor #ECE9FB
+  BorderColor #7C6BC4
+}
+
+[*] --> Initializing : power on
+Initializing --> Monitoring : sensors ready
+Initializing --> Offline : sensor failure
+
+state Monitoring {
+  Monitoring : do / read sensors each interval
+  Monitoring : do / store readings
+}
+
+state Alarm {
+  state "Frost alarm" as Frost
+  state "Energy alarm" as Energy
+  state "Security alarm" as Security
+}
+Alarm : entry / send notification to owner
+
+Monitoring --> Frost : temperature below frost threshold
+Monitoring --> Energy : energy above normal limit
+Monitoring --> Security : security breach detected
+Alarm --> Monitoring : acknowledged / condition cleared
+
+Monitoring --> Offline : connection lost
+Offline --> Monitoring : connection restored
+Offline : do / retry connection
+
+Monitoring --> [*] : shutdown
+Offline --> [*] : shutdown
+note bottom of Monitoring : Shutdown can occur\nfrom any state
+@enduml

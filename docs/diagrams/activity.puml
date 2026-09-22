@@ -1,0 +1,50 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam dpi 200
+skinparam defaultFontName Helvetica
+skinparam defaultFontSize 14
+skinparam ArrowColor #333333
+skinparam ArrowFontColor #333333
+skinparam ActivityBarColor #333333
+skinparam ActivityBackgroundColor #ECE9FB
+skinparam ActivityBorderColor #7C6BC4
+skinparam ActivityBorderThickness 1
+skinparam ActivityDiamondBackgroundColor #ECE9FB
+skinparam ActivityDiamondBorderColor #7C6BC4
+skinparam ActivityStartColor #7C6BC4
+skinparam ActivityEndColor #7C6BC4
+
+start
+repeat
+  :Read all sensors:
+  temperature, energy, security;
+  :Store readings in database;
+  fork
+    if (Temperature below\nfrost threshold?) then (yes)
+      :Generate
+      frost warning;
+    else (no)
+    endif
+  fork again
+    if (Energy use above\nnormal limit?) then (yes)
+      :Generate
+      high-consumption alert;
+    else (no)
+    endif
+  fork again
+    if (Security breach\ndetected?) then (yes)
+      :Generate
+      security alarm;
+    else (no)
+    endif
+  end fork
+  if (Any alert generated?) then (yes)
+    :Send push
+    notification to owner;
+  else (no)
+  endif
+  :Wait for next interval;
+repeat while (system running?) is (yes) not (shutdown)
+stop
+@enduml
